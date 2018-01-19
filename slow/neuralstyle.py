@@ -10,16 +10,24 @@ from network import VGG, Loss
 from utils import show_image, graph_losses
 from PIL import Image
 
-height, width = 900, 600
+import argparse
+
+parser = argparse.ArgumentParser(description='PyTorch Neural Style Implementation')
+parser.add_argument("--style", type=str, metavar="PATH", help="path to style image")
+parser.add_argument("--content", type=str, metavar="PATH", help="path to content image")
+parser.add_argument("--iterations", default=100, type=int, metavar="N", help="how many training iterations to optimize the loss function")
+args = parser.parse_args()
+
+height, width = 960, 540
 #IMAGES
 #input_image = Variable(torch.randn(1,3,width, height).cuda(), requires_grad = True)
 
 style_image = Image.open("/hdd/Images/polyphoenix.jpg").resize((height,width))
-style_image = (np.array(style_image)-127.5) / 127.5
+style_image = (np.array(style_image))
 style_image = Variable(torch.from_numpy(style_image).permute(2,0,1).unsqueeze(0)).float().cuda()
 
-content_image = Image.open("/hdd/Images/elite2.png").resize((height,width))
-content_image = (np.array(content_image)-127.5) / 127.5
+content_image = Image.open("/hdd/Images/graffiti.jpg").resize((height,width))
+content_image = (np.array(content_image))
 content_image = Variable(torch.from_numpy(content_image).permute(2,0,1).unsqueeze(0)).float().cuda()
 
 input_image = Variable(content_image.data.clone(), requires_grad = True)
@@ -35,9 +43,9 @@ for param in vgg.parameters():
 
 #OPTIMIZER
 total_losses = []
-learning_rate = 0.011
+learning_rate = 10
 optimizer = optim.Adam([input_image], lr=learning_rate)
-num_iterations = 501
+num_iterations = args.iterations
 for i in range(num_iterations):
     optimizer.zero_grad()
     input_features = vgg(input_image)
@@ -48,18 +56,12 @@ for i in range(num_iterations):
     
     total_loss.backward()
     optimizer.step()    
-    input_image.data.clamp_(-1, 1)
+    input_image.data.clamp_(0, 255)
     
     total_losses += [total_loss.data.cpu().numpy()[0]]
     if i % 10 == 0:
-        print(i)
-    if i % 100 == 0:
-        show_image(input_image)
-    if i == 2000 or i == 1000000 or i == 15000000 or i == 500000:
-            learning_rate /= (np.sqrt(10)**2)
-            print("updated learning rate: current lr:", learning_rate)
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = learning_rate
+        print(i/num_iterations* 100, "%")
+show_image(input_image)
         
 graph_losses(total_losses)
 
