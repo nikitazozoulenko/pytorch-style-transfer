@@ -53,5 +53,5 @@ def process_example(example):
 
 for i in range(5):
     print(i)
-    print(process_example(coco_data[0]))
+    print(process_example(coco_data[1]))
     

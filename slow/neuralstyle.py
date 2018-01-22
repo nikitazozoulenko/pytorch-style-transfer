@@ -18,7 +18,7 @@ parser.add_argument("--content", type=str, metavar="PATH", help="path to content
 parser.add_argument("--iterations", default=300, type=int, metavar="N", help="how many training iterations to optimize the loss function")
 args = parser.parse_args()
 
-height, width = 540, 940
+height, width = 300, 300
 #IMAGES
 #input_image = Variable(torch.randn(1,3,width, height).cuda(), requires_grad = True)
 
@@ -61,6 +61,7 @@ for i in range(num_iterations):
     total_losses += [total_loss.data.cpu().numpy()[0]]
     if i % 10 == 0:
         print(i/num_iterations* 100, "%")
+print(i/num_iterations* 100, "%")
 show_image(input_image)
         
 graph_losses(total_losses)
