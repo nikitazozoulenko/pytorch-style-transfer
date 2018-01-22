@@ -61,7 +61,7 @@ for i in range(num_iterations):
     total_losses += [total_loss.data.cpu().numpy()[0]]
     if i % 10 == 0:
         print(i/num_iterations* 100, "%")
-print(i/num_iterations* 100, "%")
+    
 show_image(input_image)
         
 graph_losses(total_losses)
