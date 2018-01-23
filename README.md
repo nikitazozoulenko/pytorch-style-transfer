@@ -1,1 +1,0 @@
-# pytorch-style-transfer

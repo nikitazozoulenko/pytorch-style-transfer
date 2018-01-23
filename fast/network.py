@@ -29,15 +29,37 @@ class VGG(nn.Module):
         relu_4_3 = self.relu_4_3(relu_3_3)
         return relu_1_2, relu_2_2, relu_3_3, relu_4_3
 
+ def _make_layer(self, block, planes, blocks, stride=1):
+        downsample = None
+        if stride != 1 or self.inplanes != planes * block.expansion:
+            downsample = nn.Sequential(
+                nn.Conv2d(self.inplanes, planes * block.expansion,
+                          kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes * block.expansion),
+            )
+
+        layers = []
+        layers.append(block(self.inplanes, planes, stride, downsample))
+        self.inplanes = planes * block.expansion
+        for i in range(1, blocks):
+            layers.append(block(self.inplanes, planes))
+
+        return nn.Sequential(*layers)
+
+def make_layer():
+
+
 class Bottleneck(nn.Module):
-    def __init__(self, in_channels):
+    def __init__(self, in_channels, out_channels, connection = "downsample"):
         super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, in_channels/4, kernel_size=1, bias=False)
+        self.connection = connection
+
+        self.conv0 = nn.Conv2d(in_channels, in_channels/4, kernel_size=1, bias=False)
+        self.bn0 = nn.BatchNorm2d(in_channels/4)
+        self.conv1 = nn.Conv2d(in_channels/4, in_channels/4, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(in_channels/4)
-        self.conv2 = nn.Conv2d(in_channels/4, in_channels/4, kernel_size=3, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(in_channels/4)
-        self.conv3 = nn.Conv2d(in_channels/4, in_channels, kernel_size=1, bias=False)
-        self.bn3 = nn.BatchNorm2d(in_channels)
+        self.conv2 = nn.Conv2d(in_channels/4, in_channels, kernel_size=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(in_channels)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -56,24 +78,19 @@ class Bottleneck(nn.Module):
 
         out += res
         out = self.relu(out)
-
         return out
 
 class ImageTransformerNetwork(nn.Module):
     def __init__(self):
         super(ImageTransformerNetwork, self).__init__()
-        self.relu = nn.ReLU(inplace=True)
 
-        self.bn0 = nn.BatchNorm2d(3)
-        self.conv0 = nn.Conv2d(3, 64, kernel_size=3, padding=1)
+        self.downsample = nn.Sequential(nn.BatchNorm2d(6),
+                                        nn.Conv2d(6, 64, kernel_size=3, padding=1),
+                                        nn.ReLU(inplace=True),
+                                        nn.BatchNorm2d(64),
+                                        nn.Conv2d(64, 128, kernel_size=3, padding=1),
+                                        nn.ReLU(inplace=True))
 
-        self.bn1 = nn.BatchNorm2d(64)
-        self.conv1 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-
-        self.bn2 = nn.BatchNorm2d(128)
-        self.conv2 = nn.Conv2d(128, 512, kernel_size=1)
-
-        self.resBN = nn.BatchNorm2d(512)
         res = []
         for i in range(5):
             res.append(Bottleneck(512))
@@ -92,10 +109,13 @@ class ImageTransformerNetwork(nn.Module):
 
         self.tanh = nn.Tanh()
 
-    def forward(self, x):
-        x = self.bn0(x)
-        x = self.conv0(x)
-        x = self.relu(x)
+    def make_res(self, fsdkfjsdklfj)
+
+    def forward(self, content, style):
+        x = torch.cat((content, style), dim = 1)
+        x = self.BN_input(x)
+
+        x = self.block_increase
 
         x = self.bn1(x)
         x = self.conv1(x)
