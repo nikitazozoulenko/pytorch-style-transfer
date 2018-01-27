@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
 
 def show_image(var_image):
@@ -7,8 +6,3 @@ def show_image(var_image):
 
     im = Image.fromarray(numpy_image.astype(np.uint8))
     im.show()
-
-def graph_losses(losses):
-    plt.plot(losses, "b", label="Total Loss")
-    plt.legend(loc=1)
-    plt.show()
