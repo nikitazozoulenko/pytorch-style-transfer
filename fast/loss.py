@@ -38,14 +38,14 @@ class StyleLoss(nn.Module):
         self.L2_loss = nn.MSELoss(size_average=True, reduce=True)
         
     def forward(self, x, y):
-        R, C, H, W = x.size()
+        C, H, W = x.size()
         
         #transpose and calculate the gram matrices
         x = x.view(C, H*W)
-        gram_x = torch.matmul(x, x.t()) / (H*W) 
+        gram_x = torch.matmul(x, x.t()) / (H*W*C) * 1000
 
         y = y.view(C, H*W)
-        gram_y = torch.matmul(y, y.t()) / (H*W)
+        gram_y = torch.matmul(y, y.t()) / (H*W*C) * 1000
 
         #take the L2 loss of the gram matrices
         style_loss = self.L2_loss(gram_x, gram_y)
@@ -56,17 +56,19 @@ class Loss(nn.Module):
         super(Loss, self).__init__()
         self.style_loss = StyleLoss()
         self.content_loss = ContentLoss()
-        
-    def forward(self, input_features, content_features, style_features):
-        style = 0
-        content = 0
-        alpha = 1
-        beta = 1000
-        
-        #style loss in relu_1_2, relu_2_2, relu_3_3, relu_4_3, relu_5_3
-        #content loss in relu_3_3
-        for input_feat, style_feat in zip(input_features, style_features):
-            style += self.style_loss(input_feat, style_feat) / 4
-        content += self.content_loss(input_features[2], content_features[2])
 
-        return alpha*content + beta*style
+    def forward(self, batch_input_features, batch_content_features, batch_style_features):
+        R = batch_input_features[0].size(0)
+        
+        style_loss = 0
+        content_loss = 0
+        
+        #style loss in relu_1_2, relu_2_2, relu_3_3, relu_4_3
+        for input_feat, style_feat in zip(batch_input_features, batch_style_features):
+            for inp, style in zip(input_feat, style_feat):
+                style_loss += self.style_loss(inp, style)
+        #content loss in relu_3_3
+        for inp, content in zip(batch_input_features[2], batch_content_features[2]):
+            content_loss += self.content_loss(inp, content)
+
+        return (content_loss + style_loss) / R

@@ -29,18 +29,20 @@ def main():
     content_image, style_image, input_image = read_images(args, use_gpu)
 
     #MODEL
-    vgg = VGG().cuda()
-    loss = Loss().cuda()
+    vgg = VGG()
+    loss = Loss()
     if use_gpu:
         vgg = VGG().cuda()
         loss = Loss().cuda()
     for param in vgg.parameters():
         param.requires_grad = False
 
+
+    losses = []
     #OPTIMIZER
-    learning_rate = 1
+    learning_rate = 0.1
     optimizer = optim.Adam([input_image], lr=learning_rate)
-    num_iterations = 600
+    num_iterations = 500
     for i in range(num_iterations):
         optimizer.zero_grad()
         input_features = vgg(input_image)
@@ -48,17 +50,18 @@ def main():
         style_features = vgg(style_image)
     
         total_loss = loss(input_features, content_features, style_features)
-    
+        losses += [total_loss]
+        
         total_loss.backward()
         optimizer.step()    
-        input_image.data.clamp_(0, 255)
+        input_image.data.clamp_(0, 1)
         if i % 30 == 0:
             print(i/num_iterations* 100, "%")
     print("100.0 %")
 
-    show_image(input_image)
-    output = Image.fromarray(input_image.data.squeeze().permute(1,2,0).cpu().numpy().astype(np.uint8))
+    output = Image.fromarray((input_image.data.squeeze()*255).permute(1,2,0).cpu().numpy().astype(np.uint8))
     output.save(args.output)
+    show_image(input_image)
 
 def read_images(args, use_gpu):
     #IMAGES
@@ -70,17 +73,20 @@ def read_images(args, use_gpu):
         height = args.height
     content_image = content_image.resize((width, height))
     content_image = np.array(content_image)
-    content_image = Variable(torch.from_numpy(content_image).permute(2,0,1).unsqueeze(0)).float()
+    content_image = Variable(torch.from_numpy(content_image).permute(2,0,1).unsqueeze(0)).float() /255
 
     style_image = Image.open(args.style).convert("RGB").resize((width, height))
     style_image = (np.array(style_image))
-    style_image = Variable(torch.from_numpy(style_image).permute(2,0,1).unsqueeze(0)).float()
-        
+    style_image = Variable(torch.from_numpy(style_image).permute(2,0,1).unsqueeze(0)).float() /255
+
+    input_image = torch.rand(content_image.size())
+
     if use_gpu:
         content_image = content_image.cuda()
         style_image = style_image.cuda()
+        input_image = input_image.cuda()
 
-    input_image = Variable(content_image.data.clone(), requires_grad = True)
+    input_image = Variable(input_image, requires_grad=True)
 
     return content_image, style_image, input_image
 
