@@ -8,14 +8,19 @@ def show_image(var_image):
     im = Image.fromarray(numpy_image.astype(np.uint8))
     im.show()
 
-def graph_losses(losses, x_indices):
-    plt.plot(x_indices, losses, "r", label="Total Loss")
+def graph_losses(losses, x_indices, val_losses, val_x_indices):
+    plt.figure(1)
+    plt.plot(x_indices, losses, "r", label="Training Loss")
+    plt.legend(loc=1)
+
+    plt.figure(2)
+    plt.plot(val_x_indices, val_losses, "g", label="Validation Loss")
+    plt.legend(loc=1)
+
+    plt.figure(3)
+    plt.plot(x_indices, losses, "r", label="Training Loss")
+    plt.plot(val_x_indices, val_losses, "g", label="Validation Loss")
     plt.legend(loc=1)
     plt.show()
-
-
-
-
-
 
 

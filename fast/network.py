@@ -9,20 +9,20 @@ class ImageTransformerNetwork(nn.Module):
         
         self.in_channels = 6
         self.downsample = nn.Sequential(nn.BatchNorm2d(6),
-                                        self._make_residual_layer(32, scaling = "downsample"),
-                                        self._make_residual_layer(32, scaling = "same"),
-                                        self._make_residual_layer(64, scaling = "downsample"))
+                                        self._make_residual_layer(24, scaling = "downsample"),
+                                        self._make_residual_layer(24, scaling = "same"),
+                                        self._make_residual_layer(48, scaling = "downsample"))
 
-        self.residual = nn.Sequential(self._make_residual_layer(64, scaling = "same"),
-                                      self._make_residual_layer(64, scaling = "same"),
-                                      self._make_residual_layer(64, scaling = "same"),
-                                      self._make_residual_layer(64, scaling = "same"))
+        self.residual = nn.Sequential(self._make_residual_layer(48, scaling = "same"),
+                                      self._make_residual_layer(48, scaling = "same"),
+                                      self._make_residual_layer(48, scaling = "same"),
+                                      self._make_residual_layer(48, scaling = "same"))
         
-        self.upsample = nn.Sequential(self._make_residual_layer(32, scaling = "upsample"),
-                                        self._make_residual_layer(32, scaling = "same"),
-                                        self._make_residual_layer(16, scaling = "upsample"),
-                                        self._make_residual_layer(16, scaling = "same"),
-                                        nn.Conv2d(16*self.expansion, 3, kernel_size=3, padding=1))
+        self.upsample = nn.Sequential(self._make_residual_layer(24, scaling = "upsample"),
+                                        self._make_residual_layer(24, scaling = "same"),
+                                        self._make_residual_layer(12, scaling = "upsample"),
+                                        self._make_residual_layer(12, scaling = "same"),
+                                        nn.Conv2d(self.in_channels, 3, kernel_size=3, padding=1))
                                         
         self.tanh = nn.Tanh()
 
