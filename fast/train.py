@@ -49,7 +49,6 @@ def train_batch(i, data_feeder):
     style = style/255
     content = content/255
     image = image_transformer_network(content, style)
-    print(image)
 
     input_features = vgg(image)
     content_features = vgg(content)
