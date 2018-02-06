@@ -6,3 +6,10 @@ def show_image(var_image):
 
     im = Image.fromarray(numpy_image.astype(np.uint8))
     im.show()
+
+def graph_losses(losses):
+    import matplotlib.pyplot as plt
+    plt.figure(1)
+    plt.plot(losses, "r", label="Loss")
+    plt.legend(loc=1)
+    plt.show()
