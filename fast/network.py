@@ -7,8 +7,8 @@ class ImageTransformerNetwork(nn.Module):
         super(ImageTransformerNetwork, self).__init__()
         self.expansion = 4
         
-        self.in_channels = 6
-        self.downsample = nn.Sequential(nn.BatchNorm2d(6),
+        self.in_channels = 3
+        self.downsample = nn.Sequential(nn.InstanceNorm2d(3),
                                         self._make_residual_layer(24, scaling = "downsample"),
                                         self._make_residual_layer(24, scaling = "same"),
                                         self._make_residual_layer(48, scaling = "downsample"))
@@ -27,8 +27,7 @@ class ImageTransformerNetwork(nn.Module):
         self.tanh = nn.Tanh()
 
         
-    def forward(self, content, style):
-        x = torch.cat((content, style), dim = 1)
+    def forward(self, x):
         x = self.downsample(x)
         x = self.residual(x)
         x = self.upsample(x)
@@ -50,20 +49,21 @@ class Bottleneck(nn.Module):
             self.residual = True
         
         self.convbn0 = nn.Sequential(nn.Conv2d(in_channels, channels, kernel_size=1, bias=False),
-                                     nn.BatchNorm2d(channels))
+                                     nn.InstanceNorm2d(channels))
 
         if scaling == "downsample":
-            self.convbn1 = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, stride = 2, padding=1),
-                                     nn.BatchNorm2d(channels))
+            self.convbn1 = nn.Sequential(nn.Upsample(scale_factor=2, mode="nearest"),
+                                         nn.Conv2d(channels, channels, kernel_size=3, stride = 2, padding=1),
+                                         nn.InstanceNorm2d(channels))
         elif scaling == "upsample":
-            self.convbn1 = nn.Sequential(nn.ConvTranspose2d(channels, channels, kernel_size=4, stride=2, padding=1),
-                                     nn.BatchNorm2d(channels))
+            self.convbn1 = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1),
+                                         nn.InstanceNorm2d(channels))
         else: #scaling == "same"
             self.convbn1 = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, padding=1, bias=False),
-                                     nn.BatchNorm2d(channels))
+                                         nn.InstanceNorm2d(channels))
         
         self.convbn2 = nn.Sequential(nn.Conv2d(channels, channels*expansion, kernel_size=1, bias=False),
-                                     nn.BatchNorm2d(channels*expansion))
+                                     nn.InstanceNorm2d(channels*expansion))
         self.relu = nn.ReLU(inplace = True)
 
         
