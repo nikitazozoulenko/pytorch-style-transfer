@@ -19,7 +19,7 @@ def make_parser():
     parser.add_argument("--output", type=str, metavar="PATH", default = "output.png", help="path to output file")
     parser.add_argument("--width", type=int, metavar="INT", default = -1, help="width of the output image")
     parser.add_argument("--height", type=int, metavar="INT", default = -1, help="height of the output image")
-    parser.add_argument("--iter", type=int, metavar="INT", default = 100, help="number of iterations of the neural style algorithm")
+    parser.add_argument("--iter", type=int, metavar="INT", default = 50, help="number of iterations of the neural style algorithm")
     parser.add_argument("--lr", type=float, metavar="FLOAT", default = 0.1, help="the learning rate of the optimizer")
     return parser
 
@@ -103,7 +103,7 @@ def main():
 
 
 
-    output = Image.fromarray((input_image.data.squeeze()*127.5+127.5).permute(1,2,0).cpu().numpy().astype(np.uint8))
+    output = Image.fromarray((input_image.data.squeeze()*255).permute(1,2,0).cpu().numpy().astype(np.uint8))
     output.save(args.output)
     show_image(input_image)
     
