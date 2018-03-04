@@ -8,8 +8,9 @@ class VGG(nn.Module):
         vgg = models.vgg16(pretrained=True)
         module_list = list(vgg.features.modules())
 
-        pooling = nn.AvgPool2d(3, 2,1)
-        #pooling = nn.MaxPool2d(3, 2,1)
+        avgpooling = nn.AvgPool2d(3, 2, 1)
+
+        module_list = [avgpooling if isinstance(module, nn.MaxPool2d) else module for module in module_list]
         
         self.relu_1_1 = nn.Sequential(*module_list[1:3])
         self.relu_2_1 = nn.Sequential(*module_list[3:8])
@@ -81,3 +82,7 @@ class Loss(nn.Module):
         content += self.content_loss(input_3_2, content_3_2)
 
         return content + style
+
+
+if __name__ == "__main__":
+    vgg = VGG()

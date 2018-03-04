@@ -19,8 +19,8 @@ def make_parser():
     parser.add_argument("--output", type=str, metavar="PATH", default = "output.png", help="path to output file")
     parser.add_argument("--width", type=int, metavar="INT", default = -1, help="width of the output image")
     parser.add_argument("--height", type=int, metavar="INT", default = -1, help="height of the output image")
-    parser.add_argument("--iter", type=int, metavar="INT", default = 50, help="number of iterations of the neural style algorithm")
-    parser.add_argument("--lr", type=float, metavar="FLOAT", default = 0.1, help="the learning rate of the optimizer")
+    parser.add_argument("--iter", type=int, metavar="INT", default = 500, help="number of iterations of the neural style algorithm")
+    parser.add_argument("--lr", type=float, metavar="FLOAT", default = 0.01, help="the learning rate of the optimizer")
     return parser
 
 
@@ -40,8 +40,8 @@ def read_images(args, use_gpu):
     style_image = (np.array(style_image))
     style_image = Variable(torch.from_numpy(style_image).permute(2,0,1).unsqueeze(0)).float() /255
 
-    input_image = torch.Tensor(content_image.size()).uniform_(0,1)
-    #input_image = content_image.data.clone()
+    #input_image = torch.Tensor(content_image.size()).uniform_(0,1)
+    input_image = content_image.data.clone()
 
     if use_gpu:
         content_image = content_image.cuda()
@@ -72,14 +72,14 @@ def main():
     
     #OPTIMIZER
     learning_rate = args.lr
-    optimizer = optim.LBFGS([input_image], lr=learning_rate)
+    optimizer = optim.Adam([input_image], lr=learning_rate)
     num_iterations = args.iter
     losses = []
 
     content_3_2 = vgg(content_image, ["3_2"])[0]
     style_features = vgg(style_image, ["1_1", "2_1", "3_1", "4_1", "5_1"])
 
-    def closure():
+    for i in range(num_iterations):
         optimizer.zero_grad()
         
         input_features = vgg(input_image, ["1_1", "2_1", "3_1", "4_1", "5_1", "3_2"])
@@ -89,12 +89,8 @@ def main():
         total_loss = loss(input_features, input_3_2, content_3_2, style_features)
         losses.append(total_loss.data.cpu().numpy()[0])
         total_loss.backward()
-        input_image.data.clamp_(0, 1)
-        
-        return total_loss
-
-    for i in range(num_iterations):
-        optimizer.step(closure)    
+        optimizer.step()  
+        input_image.data.clamp_(0, 1)  
 
         if i % 3 == 0:
             print(i/num_iterations* 100, "%")
