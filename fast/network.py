@@ -52,11 +52,11 @@ class Bottleneck(nn.Module):
                                      nn.InstanceNorm2d(channels))
 
         if scaling == "downsample":
-            self.convbn1 = nn.Sequential(nn.Upsample(scale_factor=2, mode="nearest"),
-                                         nn.Conv2d(channels, channels, kernel_size=3, stride = 2, padding=1),
+            self.convbn1 = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, stride = 2, padding=1),
                                          nn.InstanceNorm2d(channels))
         elif scaling == "upsample":
-            self.convbn1 = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1),
+            self.convbn1 = nn.Sequential(nn.Upsample(scale_factor=2, mode="nearest"),
+                                         nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1),
                                          nn.InstanceNorm2d(channels))
         else: #scaling == "same"
             self.convbn1 = nn.Sequential(nn.Conv2d(channels, channels, kernel_size=3, padding=1, bias=False),
