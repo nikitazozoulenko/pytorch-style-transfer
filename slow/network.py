@@ -8,9 +8,8 @@ class VGG(nn.Module):
         vgg = models.vgg16(pretrained=True)
         module_list = list(vgg.features.modules())
 
-        avgpooling = nn.AvgPool2d(3, 2, 1)
-
-        module_list = [avgpooling if isinstance(module, nn.MaxPool2d) else module for module in module_list]
+        #avgpooling = nn.AvgPool2d(2,2)
+        #module_list = [avgpooling if isinstance(module, nn.MaxPool2d) else module for module in module_list]
         
         self.relu_1_1 = nn.Sequential(*module_list[1:3])
         self.relu_2_1 = nn.Sequential(*module_list[3:8])
@@ -55,9 +54,9 @@ class StyleLoss(nn.Module):
         
         #transpose and calculate the gram matrices
         x = x.view(C, H*W)
-        gram_x = torch.matmul(x, x.t()) / (C*H*W) * 1000
+        gram_x = torch.matmul(x, x.t()) / (C*H*W) * 1000 *2
         y = y.view(C, H*W)
-        gram_y = torch.matmul(y, y.t()) / (C*H*W) * 1000
+        gram_y = torch.matmul(y, y.t()) / (C*H*W) * 1000 *2
 
         #take the L2 loss of the gram matrices
         style_loss = self.L2_loss(gram_x, gram_y)
