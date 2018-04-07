@@ -6,7 +6,7 @@ class ImageTransformerNetwork(nn.Module):
     def __init__(self):
         super(ImageTransformerNetwork, self).__init__()
         self.expansion = 2
-        self.cardinality = 32
+        self.cardinality = 16
         
         self.in_channels = 3
         self.downsample = nn.Sequential(nn.InstanceNorm2d(3),
@@ -15,6 +15,8 @@ class ImageTransformerNetwork(nn.Module):
                                         self._make_residual_layer(64, scaling = "downsample"))
 
         self.residual = nn.Sequential(self._make_residual_layer(64, scaling = "same"),
+                                      self._make_residual_layer(64, scaling = "same"),
+                                      self._make_residual_layer(64, scaling = "same"),
                                       self._make_residual_layer(64, scaling = "same"),
                                       self._make_residual_layer(64, scaling = "same"),
                                       self._make_residual_layer(64, scaling = "same"))

@@ -24,8 +24,8 @@ train_data_feeder = DataFeeder(coco_path+"/train2017/",
 
 train_data_feeder.start_queue_threads()
 
-#image_transformer_network = ImageTransformerNetwork().cuda()
-image_transformer_network = torch.load("savedir/model_2_acidcrop_it90k.pt")
+image_transformer_network = ImageTransformerNetwork().cuda()
+#image_transformer_network = torch.load("savedir/model_2_acidcrop_it90k.pt")
 vgg = VGG().cuda()
 vgg.eval()
 loss = Loss().cuda()
@@ -36,7 +36,7 @@ for param in vgg.parameters():
 learning_rate = 0.0001
 optimizer = optim.Adam(image_transformer_network.parameters(), lr=learning_rate)
 
-style = Variable(torch.from_numpy(np.asarray(Image.open("/hdd/Images/acidcrop.png").convert("RGB").resize((256,256)))).float().cuda().permute(2,0,1).unsqueeze(0)/255)
+style = Variable(torch.from_numpy(np.asarray(Image.open("/hdd/Images/acidcrop.png").convert("RGB"))).float().cuda().permute(2,0,1).unsqueeze(0)/255)
 style_features = vgg(style, ["1_1", "2_1", "3_1", "4_1", "5_1"])
 
 
@@ -57,7 +57,7 @@ losses = []
 x_indices = []
 val_x_indices = []
 val_losses = []
-num_iterations = 10001
+num_iterations = 220001
 image_transformer_network.train()
 for i in range(num_iterations):
     # training loss

@@ -54,9 +54,9 @@ class StyleLoss(nn.Module):
         
         #transpose and calculate the gram matrices
         x = x.view(C, H*W)
-        gram_x = torch.matmul(x, x.t()) / (C*H*W) * 1000
+        gram_x = torch.matmul(x, x.t()) / (C*H*W) * 1000 * 1.2
         y = y.view(C, H*W)
-        gram_y = torch.matmul(y, y.t()) / (C*H*W) * 1000
+        gram_y = torch.matmul(y, y.t()) / (C*H*W) * 1000 * 1.2
 
         #take the L2 loss of the gram matrices
         style_loss = self.L2_loss(gram_x, gram_y)

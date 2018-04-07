@@ -224,7 +224,7 @@ def process_example(image):
 def make_batch_from_list(cumulative_batch):
     contents = cumulative_batch
 
-    resize_size = (256, 256)
+    resize_size = (640, 480)
     resized_contents = [np.asarray(content.resize(resize_size)) for content in contents]
 
     return np.array(resized_contents).astype(np.float32)
