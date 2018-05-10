@@ -48,7 +48,7 @@ def numpy_to_cuda(numpy_array):
 
 #model = torch.load("savedir/facenet_1_0.003_it200k.pt")
 #model = torch.load("savedir/model_acidcrop_it90k.pt")
-model = torch.load("savedir/model_small_acidcrop_it100k.pt")
+model = torch.load("savedir/model_mosaic_it170k.pt")
 model.eval()
 upsample = nn.Upsample(size=(240*4, 320*4), mode = "nearest")
     
